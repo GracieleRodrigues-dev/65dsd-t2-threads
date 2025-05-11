@@ -1,10 +1,11 @@
-package org.example.service;
+package com.threads.services;
 
-import org.example.model.Position;
-import org.example.model.RoadMap;
-import org.example.model.SegmentType;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+
+import com.threads.models.Position;
+import com.threads.models.RoadMap;
+import com.threads.models.SegmentType;
 
 import java.io.BufferedReader;
 import java.io.IOException;

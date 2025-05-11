@@ -1,21 +1,22 @@
-package org.example.controller;
+package com.threads.routes;
 
-import org.example.model.RoadMap;
-import org.example.service.RoadMapService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.threads.models.RoadMap;
+import com.threads.services.RoadMapService;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/map")
-public class MapController {
+public class MapRoutes {
     private final RoadMapService roadMapService;
 
-    public MapController(RoadMapService roadMapService) {
+    public MapRoutes(RoadMapService roadMapService) {
         this.roadMapService = roadMapService;
     }
 
