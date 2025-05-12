@@ -20,7 +20,7 @@ public class MapRoutes {
         this.roadMapService = roadMapService;
     }
 
-    @GetMapping("/models")
+    @GetMapping("/maps")
     public ResponseEntity<List<int[][]>> getAvailableMaps() {
         List<RoadMap> maps = roadMapService.getAvailableMaps();
         List<int[][]> response = maps.stream()
