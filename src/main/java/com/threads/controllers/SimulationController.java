@@ -11,7 +11,7 @@ import com.threads.interfaces.SimulationControllerObserver;
 public class SimulationController {
 	private List<SimulationControllerObserver> observers = new ArrayList<>();
 
-	private int map;
+	private int roadMapIndex;
 	private int numberOfVehicles;
 	private int insertionTimeInterval;
 	private String exclusionMechanism;
@@ -19,11 +19,11 @@ public class SimulationController {
 	private boolean isInsertionStarted;
 
 	public int getMap() {
-		return map;
+		return roadMapIndex;
 	}
 
 	public void setMap(int map) {
-		this.map = map;
+		this.roadMapIndex = roadMapIndex;
 	}
 
 	public int getNumberOfVehicles() {
@@ -78,13 +78,13 @@ public class SimulationController {
 
 	public void notifyObserver() {
 		for (SimulationControllerObserver observer : observers) {
-			observer.onSimulationUpdate(map, numberOfVehicles, insertionTimeInterval, exclusionMechanism, isStarted,
+			observer.onSimulationUpdate(roadMapIndex, numberOfVehicles, insertionTimeInterval, exclusionMechanism, isStarted,
 					isInsertionStarted);
 		}
 	}
 
-	public void startSimulation(int map, int numberOfVehicles, int insertionTimeInterval, String exclusionMechanism) {
-		this.map = map;
+	public void startSimulation(int roadMapIndex, int numberOfVehicles, int insertionTimeInterval, String exclusionMechanism) {
+		this.roadMapIndex = roadMapIndex;
 		this.numberOfVehicles = numberOfVehicles;
 		this.insertionTimeInterval = insertionTimeInterval;
 		this.exclusionMechanism = exclusionMechanism;
@@ -95,7 +95,7 @@ public class SimulationController {
 	}
 
 	public void stopSimulation() {
-		this.map = 0;
+		this.roadMapIndex = 0;
 		this.numberOfVehicles = 0;
 		this.insertionTimeInterval = 0;
 		this.exclusionMechanism = null;
