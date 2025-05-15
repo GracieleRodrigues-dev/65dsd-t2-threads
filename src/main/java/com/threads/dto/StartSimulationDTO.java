@@ -1,17 +1,17 @@
 package com.threads.dto;
 
 public class StartSimulationDTO {
-	private int map;
+	private int roadMapIndex;
 	private int numberOfVehicles;
 	private int insertionTimeInterval;
 	private String exclusionMechanism;
 
-	public int getMap() {
-		return map;
+	public int getRoadMapIndex() {
+		return roadMapIndex;
 	}
 
-	public void setMap(int map) {
-		this.map = map;
+	public void setRoadMapIndex(int roadMapIndex) {
+		this.roadMapIndex = roadMapIndex;
 	}
 
 	public int getNumberOfVehicles() {
