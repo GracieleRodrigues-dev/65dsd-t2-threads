@@ -83,7 +83,7 @@ public class RoadMapService {
                             j == 0 || j == roadMap.getCols() - 1;
 
                     if (isBorder) {
-                        Position pos = new Position(i, j);
+                        Position pos = new Position(i, j,type);
 
                         switch (type) {
                             case ROAD_UP:

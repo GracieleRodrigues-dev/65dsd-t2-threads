@@ -5,10 +5,12 @@ import java.util.Objects;
 public class Position {
     private final int x;
     private final int y;
+    private final SegmentType type ;
 
-    public Position(int x, int y) {
+    public Position(int x, int y, SegmentType type) {
         this.x = x;
         this.y = y;
+        this.type = type;
     }
 
     public int getX() {
@@ -30,5 +32,9 @@ public class Position {
     @Override
     public String toString() {
         return "(" + x + ", " + y + ")";
+    }
+
+    public SegmentType getPositionType() {
+        return type;
     }
 }
