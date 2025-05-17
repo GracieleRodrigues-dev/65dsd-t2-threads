@@ -70,119 +70,41 @@ public class RoadMap {
 	}
 
 	public Position getNextVehiclePosition(Position current) {
-	    int x = current.getX();
-	    int y = current.getY();
-	    SegmentType currentSegment = getSegment(x, y);
-	    List<Position> candidates = new ArrayList<>();
-	    Random random = new Random();
 
-	    switch (currentSegment) {
-	        case ROAD_UP:
-	        case CROSS_UP:
-	            if (isValidPosition(new Position(x - 1, y, SegmentType.EMPTY))) {
-	                SegmentType upType = getSegment(x - 1, y);
-	                if (upType != null && upType != SegmentType.EMPTY) {
-	                    return new Position(x - 1, y, upType);
-	                }
-	            }
-	            break;
-
-	        case ROAD_DOWN:
-	        case CROSS_DOWN:
-	            if (isValidPosition(new Position(x + 1, y, SegmentType.EMPTY))) {
-	                SegmentType downType = getSegment(x + 1, y);
-	                if (downType != null && downType != SegmentType.EMPTY) {
-	                    return new Position(x + 1, y, downType);
-	                }
-	            }
-	            break;
-
-	        case ROAD_LEFT:
-	        case CROSS_LEFT:
-	            if (isValidPosition(new Position(x, y - 1, SegmentType.EMPTY))) {
-	                SegmentType leftType = getSegment(x, y - 1);
-	                if (leftType != null && leftType != SegmentType.EMPTY) {
-	                    return new Position(x, y - 1, leftType);
-	                }
-	            }
-	            break;
-
-	        case ROAD_RIGHT:
-	        case CROSS_RIGHT:
-	            if (isValidPosition(new Position(x, y + 1, SegmentType.EMPTY))) {
-	                SegmentType rightType = getSegment(x, y + 1);
-	                if (rightType != null && rightType != SegmentType.EMPTY) {
-	                    return new Position(x, y + 1, rightType);
-	                }
-	            }
-	            break;
-
-	        case CROSS_UP_RIGHT:
-	            if (isValidPosition(new Position(x - 1, y, SegmentType.EMPTY))) {
-	                SegmentType up = getSegment(x - 1, y);
-	                if (up != null && up != SegmentType.EMPTY) {
-	                    candidates.add(new Position(x - 1, y, up));
-	                }
-	            }
-	            if (isValidPosition(new Position(x, y + 1, SegmentType.EMPTY))) {
-	                SegmentType right = getSegment(x, y + 1);
-	                if (right != null && right != SegmentType.EMPTY) {
-	                    candidates.add(new Position(x, y + 1, right));
-	                }
-	            }
-	            break;
-
-	        case CROSS_UP_LEFT:
-	            if (isValidPosition(new Position(x - 1, y, SegmentType.EMPTY))) {
-	                SegmentType up = getSegment(x - 1, y);
-	                if (up != null && up != SegmentType.EMPTY) {
-	                    candidates.add(new Position(x - 1, y, up));
-	                }
-	            }
-	            if (isValidPosition(new Position(x, y - 1, SegmentType.EMPTY))) {
-	                SegmentType left = getSegment(x, y - 1);
-	                if (left != null && left != SegmentType.EMPTY) {
-	                    candidates.add(new Position(x, y - 1, left));
-	                }
-	            }
-	            break;
-
-	        case CROSS_RIGHT_DOWN:
-	            if (isValidPosition(new Position(x, y + 1, SegmentType.EMPTY))) {
-	                SegmentType right = getSegment(x, y + 1);
-	                if (right != null && right != SegmentType.EMPTY) {
-	                    candidates.add(new Position(x, y + 1, right));
-	                }
-	            }
-	            if (isValidPosition(new Position(x + 1, y, SegmentType.EMPTY))) {
-	                SegmentType down = getSegment(x + 1, y);
-	                if (down != null && down != SegmentType.EMPTY) {
-	                    candidates.add(new Position(x + 1, y, down));
-	                }
-	            }
-	            break;
-
-	        case CROSS_DOWN_LEFT:
-	            if (isValidPosition(new Position(x + 1, y, SegmentType.EMPTY))) {
-	                SegmentType down = getSegment(x + 1, y);
-	                if (down != null && down != SegmentType.EMPTY) {
-	                    candidates.add(new Position(x + 1, y, down));
-	                }
-	            }
-	            if (isValidPosition(new Position(x, y - 1, SegmentType.EMPTY))) {
-	                SegmentType left = getSegment(x, y - 1);
-	                if (left != null && left != SegmentType.EMPTY) {
-	                    candidates.add(new Position(x, y - 1, left));
-	                }
-	            }
-	            break;
-
-	        default:
-	            return current;
+	    if (current.getX() == 0 && current.getY() == 0) {
+	        return new Position(0, 1, current.getPositionType());
 	    }
 
-	    if (!candidates.isEmpty()) {
-	        return candidates.get(random.nextInt(candidates.size()));
+	    if (current.getX() == 0 && current.getY() == 1) {
+	        return new Position(0, 2, current.getPositionType());
+	    }
+
+	    if (current.getX() == 0 && current.getY() == 2) {
+	        return new Position(0, 3, current.getPositionType());
+	    }
+
+	    if (current.getX() == 0 && current.getY() == 3) {
+	        return new Position(0, 4, current.getPositionType());
+	    }
+
+	    if (current.getX() == 0 && current.getY() == 4) {
+	        return new Position(0, 5, current.getPositionType());
+	    }
+
+	    if (current.getX() == 0 && current.getY() == 5) {
+	        return new Position(0, 6, current.getPositionType());
+	    }
+
+	    if (current.getX() == 0 && current.getY() == 6) {
+	        return new Position(0, 7, current.getPositionType());
+	    }
+
+	    if (current.getX() == 0 && current.getY() == 7) {
+	        return new Position(0, 8, current.getPositionType());
+	    }
+
+	    if (current.getX() == 0 && current.getY() == 8) {
+	        return new Position(0, 9, current.getPositionType());
 	    }
 
 	    return current;

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import com.threads.interfaces.SimulationControllerObserver;
 import com.threads.models.Position;
 import com.threads.models.RoadMap;
+import com.threads.models.SegmentType;
 import com.threads.models.Vehicle;
 import com.threads.services.RoadMapService;
 import com.threads.services.SseEmitterService;
@@ -106,17 +107,14 @@ public class SimulationController {
 		System.out.println("StartSimulation");
 		
 		RoadMap roadMap = roadMapService.getMapById(1);
+
 		
-		Position entryPoint = roadMap.getEntryPoints().get(0);
-		
-		Vehicle vehicle1 = new Vehicle(1, entryPoint, 10);
+		Vehicle vehicle1 = new Vehicle(1, new Position(0,0, SegmentType.ROAD_UP), 10);
 		
 		MutualExclusionTemplate semaphoreStrategy = new SemaphoreStrategy(roadMap);
 		
 		VehicleController vehicleController1 = new VehicleController(vehicle1, roadMap,semaphoreStrategy, sseEmitterService);
-		
-		System.out.println("Entry Point: "+ entryPoint.toString());
-		System.out.println("Vehicle1: "+ vehicle1.toString());
+
 	}
 
 	public void stopSimulation() {

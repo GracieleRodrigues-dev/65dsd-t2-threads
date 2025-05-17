@@ -15,6 +15,7 @@ public class TrafficStreamController {
     @GetMapping("/stream")
     public SseEmitter stream() {
         String connectionId = String.valueOf(System.currentTimeMillis());
+        System.out.println("Novo cliente SSE se conectou: " + connectionId);
         return sseEmitterService.subscribe(connectionId);
     }
 }

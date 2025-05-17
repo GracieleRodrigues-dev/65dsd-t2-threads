@@ -49,7 +49,7 @@ public class SseEmitterService {
             	
                 entry.getValue().send(SseEmitter.event()
                     .name("vehicle-update")
-                    .data("Veículo ID: " + vehicle.getId() + " na posição " + vehicle.getCurrentPosition()));
+                    .data(vehicle));
                 return false;
             } catch (IOException e) {
                 System.err.println("Erro ao enviar veículo via SSE: " + e.getMessage());

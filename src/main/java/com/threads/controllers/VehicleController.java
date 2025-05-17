@@ -60,7 +60,8 @@ public class VehicleController extends Thread {
 					vehicle.setActive(false);
 				}
 
-				Thread.sleep(random.nextInt(500));
+//				Thread.sleep(random.nextInt(500));
+				Thread.sleep(500);
 
 			} catch (Exception e) {
 				vehicle.setActive(false);
