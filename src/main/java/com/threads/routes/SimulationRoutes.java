@@ -23,7 +23,7 @@ public class SimulationRoutes {
 
 	@PostMapping("/start")
 	public ResponseEntity<String> startSimulation(@RequestBody StartSimulationDTO body) {
-		simulationController.startSimulation(body.getMap(), body.getNumberOfVehicles(), body.getInsertionTimeInterval(),
+		simulationController.startSimulation(body.getRoadMapIndex(), body.getNumberOfVehicles(), body.getInsertionTimeInterval(),
 				body.getExclusionMechanism());
 
 		return ResponseEntity.ok("Simulação iniciada com sucesso.");

@@ -3,9 +3,17 @@ package com.threads.controllers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.threads.interfaces.SimulationControllerObserver;
+import com.threads.models.Position;
+import com.threads.models.RoadMap;
+import com.threads.models.Vehicle;
+import com.threads.services.RoadMapService;
+import com.threads.services.SseEmitterService;
+import com.threads.strategy.MutualExclusionTemplate;
+import com.threads.strategy.SemaphoreStrategy;
 
 @Component
 public class SimulationController {
@@ -17,6 +25,10 @@ public class SimulationController {
 	private String exclusionMechanism;
 	private boolean isStarted;
 	private boolean isInsertionStarted;
+	private final RoadMapService roadMapService = new RoadMapService();
+	
+	@Autowired
+	private SseEmitterService sseEmitterService;
 
 	public int getMap() {
 		return roadMapIndex;
@@ -92,6 +104,19 @@ public class SimulationController {
 		this.isInsertionStarted = true;
 		
 		System.out.println("StartSimulation");
+		
+		RoadMap roadMap = roadMapService.getMapById(1);
+		
+		Position entryPoint = roadMap.getEntryPoints().get(0);
+		
+		Vehicle vehicle1 = new Vehicle(1, entryPoint, 10);
+		
+		MutualExclusionTemplate semaphoreStrategy = new SemaphoreStrategy(roadMap);
+		
+		VehicleController vehicleController1 = new VehicleController(vehicle1, roadMap,semaphoreStrategy, sseEmitterService);
+		
+		System.out.println("Entry Point: "+ entryPoint.toString());
+		System.out.println("Vehicle1: "+ vehicle1.toString());
 	}
 
 	public void stopSimulation() {
