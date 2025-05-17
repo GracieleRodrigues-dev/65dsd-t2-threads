@@ -71,40 +71,40 @@ public class RoadMap {
 
 	public Position getNextVehiclePosition(Position current) {
 
-	    if (current.getX() == 0 && current.getY() == 0) {
-	        return new Position(0, 1, current.getPositionType());
+	    if (current.getY() == 0) {
+	        return new Position(current.getX(), 1, current.getPositionType());
 	    }
 
-	    if (current.getX() == 0 && current.getY() == 1) {
-	        return new Position(0, 2, current.getPositionType());
+	    if (current.getY() == 1) {
+	        return new Position(current.getX(), 2, current.getPositionType());
 	    }
 
-	    if (current.getX() == 0 && current.getY() == 2) {
-	        return new Position(0, 3, current.getPositionType());
+	    if (current.getY() == 2) {
+	        return new Position(current.getX(), 3, current.getPositionType());
 	    }
 
-	    if (current.getX() == 0 && current.getY() == 3) {
-	        return new Position(0, 4, current.getPositionType());
+	    if (current.getY() == 3) {
+	        return new Position(current.getX(), 4, current.getPositionType());
 	    }
 
-	    if (current.getX() == 0 && current.getY() == 4) {
-	        return new Position(0, 5, current.getPositionType());
+	    if (current.getY() == 4) {
+	        return new Position(current.getX(), 5, current.getPositionType());
 	    }
 
-	    if (current.getX() == 0 && current.getY() == 5) {
-	        return new Position(0, 6, current.getPositionType());
+	    if (current.getY() == 5) {
+	        return new Position(current.getX(), 6, current.getPositionType());
 	    }
 
-	    if (current.getX() == 0 && current.getY() == 6) {
-	        return new Position(0, 7, current.getPositionType());
+	    if (current.getY() == 6) {
+	        return new Position(current.getX(), 7, current.getPositionType());
 	    }
 
-	    if (current.getX() == 0 && current.getY() == 7) {
-	        return new Position(0, 8, current.getPositionType());
+	    if (current.getY() == 7) {
+	        return new Position(current.getX(), 8, current.getPositionType());
 	    }
 
-	    if (current.getX() == 0 && current.getY() == 8) {
-	        return new Position(0, 9, current.getPositionType());
+	    if (current.getY() == 8) {
+	        return new Position(current.getX(), 9, current.getPositionType());
 	    }
 
 	    return current;

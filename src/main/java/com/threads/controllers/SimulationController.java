@@ -110,10 +110,18 @@ public class SimulationController {
 
 		
 		Vehicle vehicle1 = new Vehicle(1, new Position(0,0, SegmentType.ROAD_UP), 10);
+		Vehicle vehicle2 = new Vehicle(2, new Position(1,0, SegmentType.ROAD_UP), 10);
+		Vehicle vehicle3 = new Vehicle(3, new Position(2,0, SegmentType.ROAD_UP), 10);
+		Vehicle vehicle4 = new Vehicle(4, new Position(3,0, SegmentType.ROAD_UP), 10);
+		Vehicle vehicle5 = new Vehicle(5, new Position(4,0, SegmentType.ROAD_UP), 10);
 		
 		MutualExclusionTemplate semaphoreStrategy = new SemaphoreStrategy(roadMap);
 		
 		VehicleController vehicleController1 = new VehicleController(vehicle1, roadMap,semaphoreStrategy, sseEmitterService);
+		VehicleController vehicleController2 = new VehicleController(vehicle2, roadMap,semaphoreStrategy, sseEmitterService);
+		VehicleController vehicleController3 = new VehicleController(vehicle3, roadMap,semaphoreStrategy, sseEmitterService);
+		VehicleController vehicleController4 = new VehicleController(vehicle4, roadMap,semaphoreStrategy, sseEmitterService);
+		VehicleController vehicleController5 = new VehicleController(vehicle5, roadMap,semaphoreStrategy, sseEmitterService);
 
 	}
 
