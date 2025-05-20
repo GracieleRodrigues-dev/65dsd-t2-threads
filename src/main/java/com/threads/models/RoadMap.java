@@ -70,44 +70,20 @@ public class RoadMap {
 	}
 
 	public Position getNextVehiclePosition(Position current) {
+		SegmentType currentType = getSegment(current.getX(), current.getY());
 
-	    if (current.getY() == 0) {
-	        return new Position(current.getX(), 1, current.getPositionType());
-	    }
-
-	    if (current.getY() == 1) {
-	        return new Position(current.getX(), 2, current.getPositionType());
-	    }
-
-	    if (current.getY() == 2) {
-	        return new Position(current.getX(), 3, current.getPositionType());
-	    }
-
-	    if (current.getY() == 3) {
-	        return new Position(current.getX(), 4, current.getPositionType());
-	    }
-
-	    if (current.getY() == 4) {
-	        return new Position(current.getX(), 5, current.getPositionType());
-	    }
-
-	    if (current.getY() == 5) {
-	        return new Position(current.getX(), 6, current.getPositionType());
-	    }
-
-	    if (current.getY() == 6) {
-	        return new Position(current.getX(), 7, current.getPositionType());
-	    }
-
-	    if (current.getY() == 7) {
-	        return new Position(current.getX(), 8, current.getPositionType());
-	    }
-
-	    if (current.getY() == 8) {
-	        return new Position(current.getX(), 9, current.getPositionType());
-	    }
-
-	    return current;
+		switch (currentType) {
+			case ROAD_UP:
+				return new Position(current.getX() - 1, current.getY(),getSegment(current.getX() - 1, current.getY()));
+			case ROAD_DOWN:
+				return new Position(current.getX() + 1, current.getY(),getSegment(current.getX() + 1, current.getY()));
+			case ROAD_LEFT:
+				return new Position(current.getX(), current.getY() - 1, getSegment(current.getX(), current.getY() - 1)	);
+			case ROAD_RIGHT:
+				return new Position(current.getX(), current.getY() + 1, getSegment(current.getX(), current.getY() - 1)	);
+			default:
+				return current;
+		}
 	}
 
 }

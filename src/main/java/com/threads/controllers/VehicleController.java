@@ -9,8 +9,6 @@ import com.threads.strategy.MutualExclusionTemplate;
 import java.util.List;
 import java.util.Random;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 public class VehicleController extends Thread {
 	private final Vehicle vehicle;
 	private final RoadMap roadMap;
@@ -44,7 +42,8 @@ public class VehicleController extends Thread {
 				Position nextPosition = roadMap.getNextVehiclePosition(vehicle.getCurrentPosition());
 
 				if (nextPosition.getPositionType().isCross()) {
-					// Lógica de cruzamento
+					//If the next position is a cross, decide where to turn
+					nextPosition = decideCrossingTurn(nextPosition);
 				} else {
 					mutualExclusion.tryAcquire(nextPosition);
 
@@ -69,5 +68,10 @@ public class VehicleController extends Thread {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	private Position decideCrossingTurn(Position nextPosition) {
+		//implementar
+		return nextPosition;
 	}
 }
