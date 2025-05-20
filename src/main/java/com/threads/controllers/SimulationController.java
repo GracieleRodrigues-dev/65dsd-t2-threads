@@ -2,7 +2,9 @@ package com.threads.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
+import com.threads.strategy.MonitorStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +29,8 @@ public class SimulationController {
 	private boolean isStarted;
 	private boolean isInsertionStarted;
 	private final RoadMapService roadMapService = new RoadMapService();
-	
+	private List<VehicleController> activeControllers = new ArrayList<>();
+
 	@Autowired
 	private SseEmitterService sseEmitterService;
 
@@ -106,22 +109,24 @@ public class SimulationController {
 		
 		System.out.println("StartSimulation");
 		
-		RoadMap roadMap = roadMapService.getMapById(1);
+		RoadMap roadMap = roadMapService.getMapById(roadMapIndex);
 
-		
-		Vehicle vehicle1 = new Vehicle(1, new Position(0,0, SegmentType.ROAD_UP), 10);
-		Vehicle vehicle2 = new Vehicle(2, new Position(1,0, SegmentType.ROAD_UP), 10);
-		Vehicle vehicle3 = new Vehicle(3, new Position(2,0, SegmentType.ROAD_UP), 10);
-		Vehicle vehicle4 = new Vehicle(4, new Position(3,0, SegmentType.ROAD_UP), 10);
-		Vehicle vehicle5 = new Vehicle(5, new Position(4,0, SegmentType.ROAD_UP), 10);
-		
-		MutualExclusionTemplate semaphoreStrategy = new SemaphoreStrategy(roadMap);
-		
-		VehicleController vehicleController1 = new VehicleController(vehicle1, roadMap,semaphoreStrategy, sseEmitterService);
-		VehicleController vehicleController2 = new VehicleController(vehicle2, roadMap,semaphoreStrategy, sseEmitterService);
-		VehicleController vehicleController3 = new VehicleController(vehicle3, roadMap,semaphoreStrategy, sseEmitterService);
-		VehicleController vehicleController4 = new VehicleController(vehicle4, roadMap,semaphoreStrategy, sseEmitterService);
-		VehicleController vehicleController5 = new VehicleController(vehicle5, roadMap,semaphoreStrategy, sseEmitterService);
+		List<Position> entryPoints = roadMap.getEntryPoints();
+		if (entryPoints.isEmpty()) {
+			throw new IllegalStateException("No entry points in the road map");
+		}
+
+		MutualExclusionTemplate strategy = "semaphore".equals(exclusionMechanism) ?
+				new SemaphoreStrategy(roadMap) : new MonitorStrategy(roadMap);
+
+		for (int i = 0; i < Math.min(numberOfVehicles, entryPoints.size()); i++) {
+			Position startPos = entryPoints.get(i % entryPoints.size());
+			Vehicle vehicle = new Vehicle(i+1, startPos, 100 + new Random().nextInt(400)); // Velocidades variadas
+
+			VehicleController controller = new VehicleController(
+					vehicle, roadMap, strategy, sseEmitterService);
+			activeControllers.add(controller);
+		}
 
 	}
 
@@ -131,7 +136,16 @@ public class SimulationController {
 		this.insertionTimeInterval = 0;
 		this.exclusionMechanism = null;
 		this.isStarted = false;
-		
+
+		activeControllers.forEach(controller -> {
+			try {
+				controller.interrupt();
+			} catch (Exception e) {
+				System.err.println("Error stopping vehicle: " + e.getMessage());
+			}
+		});
+		activeControllers.clear();
+
 		System.out.println("StopSimulation");
 	}
 

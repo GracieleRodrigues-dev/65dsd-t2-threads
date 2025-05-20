@@ -111,7 +111,12 @@ public class VehicleController extends Thread {
 	}
 
 	private void moveVehicle(Position newPos) {
-		mutualExclusion.release(vehicle.getCurrentPosition());
+		Position current = vehicle.getCurrentPosition();
+
+		System.out.println("Vehicle " + vehicle.getId() + " moving from " +
+				current + " to " + newPos);
+
+		mutualExclusion.release(current);
 		vehicle.setCurrentPosition(newPos);
 		notifySSE(vehicle);
 
