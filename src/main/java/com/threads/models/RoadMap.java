@@ -2,7 +2,6 @@ package com.threads.models;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class RoadMap {
 	private final int rows;
@@ -78,9 +77,9 @@ public class RoadMap {
 			case ROAD_DOWN:
 				return new Position(current.getX() + 1, current.getY(),getSegment(current.getX() + 1, current.getY()));
 			case ROAD_LEFT:
-				return new Position(current.getX(), current.getY() - 1, getSegment(current.getX(), current.getY() - 1)	);
+				return new Position(current.getX(), current.getY() - 1, getSegment(current.getX(), current.getY() - 1));
 			case ROAD_RIGHT:
-				return new Position(current.getX(), current.getY() + 1, getSegment(current.getX(), current.getY() - 1)	);
+				return new Position(current.getX(), current.getY() + 1, getSegment(current.getX(), current.getY() + 1));
 			default:
 				return current;
 		}

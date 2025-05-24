@@ -88,10 +88,20 @@ public class VehicleController extends Thread {
 	private List<Position> calculateCrossingPath(Position entryPos) {
 		List<Position> path = new ArrayList<>();
 		Position current = entryPos;
+
 		while (roadMap.getSegment(current.getX(), current.getY()).isCross()) {
+			if (path.contains(current)) {
+				break;
+			}
 			path.add(current);
-			current = roadMap.getNextVehiclePosition(current);
+			Position next = roadMap.getNextVehiclePosition(current);
+			
+			if (next.equals(current)) {
+				break;
+			}
+			current = next;
 		}
+
 		path.add(current);
 		return path;
 	}
