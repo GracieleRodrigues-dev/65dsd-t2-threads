@@ -28,14 +28,6 @@ public class Vehicle {
 		this.currentPosition = currentPosition;
 	}
 
-	public Position getNextPosition() {
-		return nextPosition;
-	}
-
-	public void setNextPosition(Position nextPosition) {
-		this.nextPosition = nextPosition;
-	}
-
 	public int getSpeed() {
 		return speed;
 	}

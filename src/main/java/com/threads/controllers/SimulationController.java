@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import com.threads.interfaces.SimulationControllerObserver;
 import com.threads.models.Position;
 import com.threads.models.RoadMap;
-import com.threads.models.SegmentType;
 import com.threads.models.Vehicle;
 import com.threads.services.RoadMapService;
 import com.threads.services.SseEmitterService;
@@ -30,57 +29,11 @@ public class SimulationController {
 	private boolean isInsertionStarted;
 	private final RoadMapService roadMapService = new RoadMapService();
 	private List<VehicleController> activeControllers = new ArrayList<>();
+	private Thread vehicleControlThread;
+
 
 	@Autowired
 	private SseEmitterService sseEmitterService;
-
-	public int getMap() {
-		return roadMapIndex;
-	}
-
-	public void setMap(int map) {
-		this.roadMapIndex = roadMapIndex;
-	}
-
-	public int getNumberOfVehicles() {
-		return numberOfVehicles;
-	}
-
-	public void setNumberOfVehicles(int numberOfVehicles) {
-		this.numberOfVehicles = numberOfVehicles;
-	}
-
-	public int getInsertionTimeInterval() {
-		return insertionTimeInterval;
-	}
-
-	public void setInsertionTimeInterval(int insertionTimeInterval) {
-		this.insertionTimeInterval = insertionTimeInterval;
-	}
-
-	public String getExclusionMechanism() {
-		return exclusionMechanism;
-	}
-
-	public void setExclusionMechanism(String exclusionMechanism) {
-		this.exclusionMechanism = exclusionMechanism;
-	}
-
-	public boolean isStarted() {
-		return isStarted;
-	}
-
-	public void setStarted(boolean isStarted) {
-		this.isStarted = isStarted;
-	}
-
-	public boolean isInsertionStarted() {
-		return isInsertionStarted;
-	}
-
-	public void setInsertionStarted(boolean isInsertionStarted) {
-		this.isInsertionStarted = isInsertionStarted;
-	}
 
 	public void addObserver(SimulationControllerObserver observer) {
 		if (observer != null && !observers.contains(observer)) {
@@ -106,12 +59,15 @@ public class SimulationController {
 		this.exclusionMechanism = exclusionMechanism;
 		this.isStarted = true;
 		this.isInsertionStarted = true;
-		
-		System.out.println("StartSimulation");
-		
-		RoadMap roadMap = roadMapService.getMapById(roadMapIndex);
 
+		System.out.println("StartSimulation - Map: " + roadMapIndex +
+				", Vehicles: " + numberOfVehicles +
+				", Interval: " + insertionTimeInterval +
+				", Strategy: " + exclusionMechanism);
+
+		RoadMap roadMap = roadMapService.getMapById(roadMapIndex);
 		List<Position> entryPoints = roadMap.getEntryPoints();
+
 		if (entryPoints.isEmpty()) {
 			throw new IllegalStateException("No entry points in the road map");
 		}
@@ -119,23 +75,82 @@ public class SimulationController {
 		MutualExclusionTemplate strategy = "semaphore".equals(exclusionMechanism) ?
 				new SemaphoreStrategy(roadMap) : new MonitorStrategy(roadMap);
 
-		for (int i = 0; i < Math.min(numberOfVehicles, entryPoints.size()); i++) {
-			Position startPos = entryPoints.get(i % entryPoints.size());
-			Vehicle vehicle = new Vehicle(i+1, startPos, 100 + new Random().nextInt(400)); // Velocidades variadas
+		vehicleControlThread = new Thread(() -> {
+			Random random = new Random();
+			while (isStarted && !Thread.currentThread().isInterrupted()) {
+				if (isInsertionStarted && activeControllers.size() < numberOfVehicles) {
+				try {
+					synchronized (activeControllers) {
+						int beforeRemove = activeControllers.size();
+						activeControllers.removeIf(controller -> !controller.isVehicleActive());
+						int afterRemove = activeControllers.size();
 
-			VehicleController controller = new VehicleController(
-					vehicle, roadMap, strategy, sseEmitterService);
-			activeControllers.add(controller);
-		}
+						if (beforeRemove != afterRemove) {
+							System.out.println("Removed " + (beforeRemove - afterRemove) + " inactive vehicles");
+						}
 
+						while (activeControllers.size() < numberOfVehicles) {
+							Position startPos = entryPoints.get(random.nextInt(entryPoints.size()));
+							int speed = 300 + random.nextInt(200);
+
+							Vehicle vehicle = new Vehicle(
+									generateNextId(),
+									startPos,
+									speed);
+
+							VehicleController controller = new VehicleController(
+									vehicle, roadMap, strategy, sseEmitterService);
+
+							activeControllers.add(controller);
+							System.out.printf("Vehicle %d inserted at %s (Speed: %dms)%n",
+									vehicle.getId(), startPos, speed);
+
+							Thread.sleep(50);
+						}
+					}
+					Thread.sleep(insertionTimeInterval);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					System.out.println("Insertion thread interrupted normally");
+					break;
+				}
+			}else {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+						break;
+					}
+				}
+			}
+			System.out.println("Vehicle control thread finished");
+		}, "VehicleControllerThread");
+
+		vehicleControlThread.start();
 	}
 
+	private int generateNextId() {
+		return activeControllers.stream()
+				.mapToInt(c -> c.getVehicle().getId())
+				.max()
+				.orElse(0) + 1;
+	}
 	public void stopSimulation() {
 		this.roadMapIndex = 0;
 		this.numberOfVehicles = 0;
 		this.insertionTimeInterval = 0;
 		this.exclusionMechanism = null;
 		this.isStarted = false;
+		this.isInsertionStarted = false;
+
+		if (vehicleControlThread != null && vehicleControlThread.isAlive()) {
+			vehicleControlThread.interrupt();
+			try {
+				vehicleControlThread.join(1000);
+			} catch (InterruptedException e) {
+				System.err.println("Error while waiting for thread to finish: " + e.getMessage());
+			}
+		}
 
 		activeControllers.forEach(controller -> {
 			try {
@@ -150,9 +165,21 @@ public class SimulationController {
 	}
 
 	public void stopVehicleInsertion() {
-		this.isInsertionStarted = false;
-		
-		System.out.println("StopVehicleInsertion");
+		synchronized (activeControllers) {
+			this.isInsertionStarted = false;
+		}
+
+		if (vehicleControlThread != null && vehicleControlThread.isAlive()) {
+			vehicleControlThread.interrupt();
+			try {
+				vehicleControlThread.join(500);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				System.err.println("Error while waiting for insertion thread to finish: " + e.getMessage());
+			}
+		}
+		System.out.println("Vehicle insertion stopped. Active vehicles: " + activeControllers.size());
+		notifyObserver();
 	}
 
 }

@@ -104,7 +104,7 @@ public class VehicleController extends Thread {
 
 	private List<Position> calculateCrossingPath(Position entryPosition) {
 		List<Position> path = new ArrayList<>();
-		int option = random.nextInt(3);
+		int option =0;
 		
 		switch (entryPosition.getPositionType()) {
 		case ROAD_UP:
@@ -210,7 +210,7 @@ public class VehicleController extends Thread {
 	private void moveVehicle(Position newPos) {
 		Position current = vehicle.getCurrentPosition();
 
-		System.out.println("Vehicle " + vehicle.getId() + " moving from " + current + " to " + newPos);
+		System.out.println("Vehicle " + vehicle.getId() + " moving from " + current.getPositionType()+ current + " to " + newPos.getPositionType() + newPos);
 
 		mutualExclusion.release(current);
 		vehicle.setCurrentPosition(newPos);
@@ -221,4 +221,11 @@ public class VehicleController extends Thread {
 		}
 	}
 
+	public boolean isVehicleActive(){
+		return vehicle.isActive();
+	}
+
+	public Vehicle getVehicle() {
+		return vehicle;
+	}
 }

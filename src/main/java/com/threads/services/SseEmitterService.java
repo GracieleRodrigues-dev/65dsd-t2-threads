@@ -38,15 +38,13 @@ public class SseEmitterService {
 
 
     public void sendPositionUpdate(Vehicle vehicle) {
-    	System.out.println("emitters size: " + emitters.size());
+    	/*System.out.println("emitters size: " + emitters.size());
     	for (Map.Entry<String, SseEmitter> entry : emitters.entrySet()) {
     	    System.out.println("Emitters key: " + entry.getKey() + ", value: " + entry.getValue());
-    	}
+    	}*/
     	
         emitters.entrySet().removeIf(entry -> {
             try {
-            	System.out.println("BATATA: " + entry.getValue());
-            	
                 entry.getValue().send(SseEmitter.event()
                     .name("vehicle-update")
                     .data(vehicle));

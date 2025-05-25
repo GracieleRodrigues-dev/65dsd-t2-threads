@@ -123,7 +123,7 @@ public class RoadMap {
 	public Position getNextVehiclePosition(Position currentPosition) {
 		SegmentType currentType = getSegment(currentPosition.getX(), currentPosition.getY());
 
-		System.out.println("Type: " + currentPosition.getPositionType());
+		//System.out.println("Type: " + currentPosition.getPositionType());
 
 		switch (currentType) {
 		case ROAD_UP:
