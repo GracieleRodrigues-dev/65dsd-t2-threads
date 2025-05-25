@@ -68,20 +68,75 @@ public class RoadMap {
 		return type != null && type != SegmentType.EMPTY;
 	}
 
-	public Position getNextVehiclePosition(Position current) {
-		SegmentType currentType = getSegment(current.getX(), current.getY());
+	public Position getPositionAtUpFrom(Position position) {
+		try {
+			int x = position.getX();
+			int y = position.getY();
+			SegmentType segment = getSegment(x - 1, y);
+
+			return new Position(x - 1, y, segment);
+
+		} catch (ArrayIndexOutOfBoundsException ex) {
+			return null;
+		}
+	}
+
+	public Position getPositionAtDownFrom(Position position) {
+		try {
+			int x = position.getX();
+			int y = position.getY();
+			SegmentType segment = getSegment(x - 1, y);
+
+			return new Position(x + 1, y, segment);
+
+		} catch (ArrayIndexOutOfBoundsException ex) {
+			return null;
+		}
+	}
+
+	public Position getPositionAtRightFrom(Position position) {
+		try {
+			int x = position.getX();
+			int y = position.getY();
+			SegmentType segment = getSegment(x, y + 1);
+
+			return new Position(x, y + 1, segment);
+
+		} catch (ArrayIndexOutOfBoundsException ex) {
+			return null;
+		}
+	}
+
+	public Position getPositionAtLeftFrom(Position position) {
+		try {
+			int x = position.getX();
+			int y = position.getY();
+			SegmentType segment = getSegment(x, y - 1);
+
+			return new Position(x, y - 1, segment);
+
+		} catch (ArrayIndexOutOfBoundsException ex) {
+			return null;
+		}
+	}
+
+	public Position getNextVehiclePosition(Position currentPosition) {
+		SegmentType currentType = getSegment(currentPosition.getX(), currentPosition.getY());
+
+		System.out.println("Type: " + currentPosition.getPositionType());
 
 		switch (currentType) {
-			case ROAD_UP:
-				return new Position(current.getX() - 1, current.getY(),getSegment(current.getX() - 1, current.getY()));
-			case ROAD_DOWN:
-				return new Position(current.getX() + 1, current.getY(),getSegment(current.getX() + 1, current.getY()));
-			case ROAD_LEFT:
-				return new Position(current.getX(), current.getY() - 1, getSegment(current.getX(), current.getY() - 1));
-			case ROAD_RIGHT:
-				return new Position(current.getX(), current.getY() + 1, getSegment(current.getX(), current.getY() + 1));
-			default:
-				return current;
+		case ROAD_UP:
+			return getPositionAtUpFrom(currentPosition);
+		case ROAD_DOWN:
+			return getPositionAtDownFrom(currentPosition);
+		case ROAD_LEFT:
+			return getPositionAtLeftFrom(currentPosition);
+		case ROAD_RIGHT:
+			return getPositionAtRightFrom(currentPosition);
+
+		default:
+			return currentPosition;
 		}
 	}
 
