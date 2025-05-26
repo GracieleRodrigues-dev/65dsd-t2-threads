@@ -236,8 +236,8 @@ public class VehicleController extends Thread {
 		// Removes the entry direction from the options (to avoid going back the way it came)
 		possibleDirections.remove(entryDirection);
 		if (possibleDirections.isEmpty()) {
-			// If there was only one direction (the entry one), allow going back
-			possibleDirections = getPossibleDirections(crossingType);
+			System.out.println("Vehicle " + vehicle.getId() + " blocked at crossing - no valid exits");
+			return path;
 		}
 
 		SegmentType chosenDirection = possibleDirections.get(random.nextInt(possibleDirections.size()));
