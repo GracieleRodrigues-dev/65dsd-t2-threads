@@ -40,6 +40,7 @@ public class VehicleController extends Thread {
 	public void run() {
 		while (vehicle.isActive()) {
 			try {
+				while (vehicle.isActive()) {
 				// Calculate the next position based on current road/crossing
 				Position nextPosition = calculateNextPosition();
 
@@ -76,18 +77,19 @@ public class VehicleController extends Thread {
 				}
 				// Respect the vehicle's speed by sleeping
 				sleep(vehicle.getSpeed());
+				}
 			} catch (Exception e) {
 				vehicle.setActive(false);
 				System.err.println("Erro na thread do veículo: " + e.getMessage());
 				e.printStackTrace();
+			} finally {
+				mutualExclusion.release(vehicle.getCurrentPosition());
+				System.out.println("Vehicle " + vehicle.getId() + " finalized");
 			}
 		}
 	}
 
 	private Position calculateNextPosition() {
-		if (crossingPath != null && !crossingPath.isEmpty()) {
-			return crossingPath.get(0);
-		}
 		return roadMap.getNextVehiclePosition(vehicle.getCurrentPosition());
 	}
 
@@ -163,18 +165,6 @@ public class VehicleController extends Thread {
 		return path;
 	}
 
-	private List<Position> crossingDownToUp(Position entryPosition) {
-		List<Position> path = new ArrayList<>();
-		path.add(entryPosition);
-
-		Position down1 = roadMap.getPositionAtUpFrom(entryPosition);
-		path.add(down1);
-
-		Position down2 = roadMap.getPositionAtUpFrom(down1);
-		path.add(down2);
-
-		return path;
-	}
 
 	private List<Position> crossingRightToDown(Position entryPosition) {
 		List<Position> path = new ArrayList<>();
@@ -186,18 +176,6 @@ public class VehicleController extends Thread {
 		return path;
 	}
 
-	private List<Position> crossingRightToLeft(Position entryPosition) {
-		List<Position> path = new ArrayList<>();
-		path.add(entryPosition);
-
-		Position right1 = roadMap.getPositionAtLeftFrom(entryPosition);
-		path.add(right1);
-
-		Position right2 = roadMap.getPositionAtLeftFrom(right1);
-		path.add(right2);
-
-		return path;
-	}
 
 	private List<Position> crossingRightToUp(Position entryPosition) {
 		List<Position> path = new ArrayList<>();
@@ -225,19 +203,6 @@ public class VehicleController extends Thread {
 		return path;
 	}
 
-	private List<Position> crossingLeftToRight(Position entryPosition) {
-		List<Position> path = new ArrayList<>();
-		path.add(entryPosition);
-
-		Position left1 = roadMap.getPositionAtLeftFrom(entryPosition);
-		path.add(left1);
-
-		Position left2 = roadMap.getPositionAtLeftFrom(left1);
-		path.add(left2);
-
-		return path;
-	}
-
 	private List<Position> crossingLeftToDown(Position entryPosition) {
 		List<Position> path = new ArrayList<>();
 		path.add(entryPosition);
@@ -256,94 +221,152 @@ public class VehicleController extends Thread {
 
 	private List<Position> calculateCrossingPath(Position entryPosition) {
 		List<Position> path = new ArrayList<>();
-		int option = 0;
-		
-		switch (entryPosition.getPositionType()) {
-		case ROAD_UP:
-			switch (option) {
-			case 0:
-				// UpToRight
-				System.out.println("FromUpToRight");
-				path = crossingUpToRight(entryPosition);
-				break;
-			case 1:
-				// UpToUp
-				System.out.println("FromUpToUp");
-				path = crossingUpToUp(entryPosition);
-				break;
-			case 2:
-				// UpToLeft
-				System.out.println("FromUpToLeft");
-				path = crossingUpToLeft(entryPosition);
-				break;
-			}
-			break;
+		SegmentType crossingType = roadMap.getSegment(entryPosition.getX(), entryPosition.getY());
 
-		case ROAD_DOWN:
-			switch (option) {
-			case 0:
-				// DownToLeft
-				System.out.println("FromDownToLeft");
-				path = crossingDownToLeft(entryPosition);
-				break;
-			case 1:
-				// DownToUp
-				System.out.println("FromDownToUp");
-				path = crossingDownToUp(entryPosition);
-				break;
-			case 2:
-				// DownToRight
-				System.out.println("FromDownToRight");
-				path = crossingDownToRight(entryPosition);
-				break;
-			}
-			break;
+		// Determines the entry direction based on the previous segment type
+		SegmentType entryDirection = vehicle.getCurrentPosition().getPositionType();
 
-		case ROAD_RIGHT:
-			switch (option) {
-			case 0:
-				// RightToDown
-				System.out.println("FromRightToDown");
-				path = crossingRightToDown(entryPosition);
-				break;
-			case 1:
-				// RightToLeft
-				System.out.println("FromRightToLeft");
-				path = crossingRightToLeft(entryPosition);
-				break;
-			case 2:
-				// RightToUp
-				System.out.println("FromRightToUp");
-				path = crossingRightToUp(entryPosition);
-				break;
-			}
-			break;
-
-		case ROAD_LEFT:
-			switch (option) {
-			case 0:
-				// LeftToUp
-				System.out.println("FromLeftToUp");
-				path = crossingLeftToUp(entryPosition);
-				break;
-			case 1:
-				// LeftToRight
-				System.out.println("FromLeftToRight");
-				path = crossingLeftToRight(entryPosition);
-				break;
-			case 2:
-				// LeftToDown
-				System.out.println("FromLeftToDown");
-				path = crossingLeftToDown(entryPosition);
-				break;
-			}
-			break;
-
-		default:
-			// Log ou tratamento para tipos inesperados
-			System.out.println("Unknown Segment Type: " + entryPosition.getPositionType());
-			break;
+		// Randomly chooses one of the possible directions from the intersection
+		List<SegmentType> possibleDirections = getPossibleDirections(crossingType);
+		if (possibleDirections.isEmpty()) {
+			System.out.println("No valid directions for crossing type: " + crossingType);
+			return path;
 		}
+
+		// Removes the entry direction from the options (to avoid going back the way it came)
+		possibleDirections.remove(entryDirection);
+		if (possibleDirections.isEmpty()) {
+			// If there was only one direction (the entry one), allow going back
+			possibleDirections = getPossibleDirections(crossingType);
+		}
+
+		SegmentType chosenDirection = possibleDirections.get(random.nextInt(possibleDirections.size()));
+		System.out.println("Entry: " + entryDirection + ", Crossing: " + crossingType + ", Chosen: " + chosenDirection);
+
+		// Calculates the path based on the entry and exit directions
+		switch (entryDirection) {
+			case ROAD_UP:
+				if (chosenDirection == SegmentType.ROAD_UP) {
+					path = crossingUpToUp(entryPosition);
+				} else if (chosenDirection == SegmentType.ROAD_RIGHT) {
+					path = crossingUpToRight(entryPosition);
+				} else if (chosenDirection == SegmentType.ROAD_LEFT) {
+					path = crossingUpToLeft(entryPosition);
+				}
+				break;
+
+			case ROAD_DOWN:
+				if (chosenDirection == SegmentType.ROAD_DOWN) {
+					path = crossingDownToDown(entryPosition);
+				} else if (chosenDirection == SegmentType.ROAD_LEFT) {
+					path = crossingDownToLeft(entryPosition);
+				} else if (chosenDirection == SegmentType.ROAD_RIGHT) {
+					path = crossingDownToRight(entryPosition);
+				}
+				break;
+
+			case ROAD_RIGHT:
+				if (chosenDirection == SegmentType.ROAD_RIGHT) {
+					path = crossingRightToRight(entryPosition);
+				} else if (chosenDirection == SegmentType.ROAD_DOWN) {
+					path = crossingRightToDown(entryPosition);
+				} else if (chosenDirection == SegmentType.ROAD_UP) {
+					path = crossingRightToUp(entryPosition);
+				}
+				break;
+
+			case ROAD_LEFT:
+				if (chosenDirection == SegmentType.ROAD_LEFT) {
+					path = crossingLeftToLeft(entryPosition);
+				} else if (chosenDirection == SegmentType.ROAD_UP) {
+					path = crossingLeftToUp(entryPosition);
+				} else if (chosenDirection == SegmentType.ROAD_DOWN) {
+					path = crossingLeftToDown(entryPosition);
+				}
+				break;
+
+			default:
+				System.out.println("Unknown entry direction: " + entryDirection);
+		}
+
+		return path;
+	}
+
+	private List<SegmentType> getPossibleDirections(SegmentType crossingType) {
+		List<SegmentType> directions = new ArrayList<>();
+
+		switch (crossingType) {
+			case CROSS_UP:
+				directions.add(SegmentType.ROAD_UP);
+				break;
+			case CROSS_RIGHT:
+				directions.add(SegmentType.ROAD_RIGHT);
+				break;
+			case CROSS_DOWN:
+				directions.add(SegmentType.ROAD_DOWN);
+				break;
+			case CROSS_LEFT:
+				directions.add(SegmentType.ROAD_LEFT);
+				break;
+			case CROSS_UP_RIGHT:
+				directions.add(SegmentType.ROAD_UP);
+				directions.add(SegmentType.ROAD_RIGHT);
+				break;
+			case CROSS_UP_LEFT:
+				directions.add(SegmentType.ROAD_UP);
+				directions.add(SegmentType.ROAD_LEFT);
+				break;
+			case CROSS_RIGHT_DOWN:
+				directions.add(SegmentType.ROAD_RIGHT);
+				directions.add(SegmentType.ROAD_DOWN);
+				break;
+			case CROSS_DOWN_LEFT:
+				directions.add(SegmentType.ROAD_DOWN);
+				directions.add(SegmentType.ROAD_LEFT);
+				break;
+			default:
+				// Não é um cruzamento válido
+				break;
+		}
+
+		return directions;
+	}
+
+	private List<Position> crossingDownToDown(Position entryPosition) {
+		List<Position> path = new ArrayList<>();
+		path.add(entryPosition);
+
+		Position down1 = roadMap.getPositionAtDownFrom(entryPosition);
+		if (down1 != null) path.add(down1);
+
+		Position down2 = roadMap.getPositionAtDownFrom(down1);
+		if (down2 != null) path.add(down2);
+
+		return path;
+	}
+
+	private List<Position> crossingRightToRight(Position entryPosition) {
+		List<Position> path = new ArrayList<>();
+		path.add(entryPosition);
+
+		Position right1 = roadMap.getPositionAtRightFrom(entryPosition);
+		if (right1 != null) path.add(right1);
+
+		Position right2 = roadMap.getPositionAtRightFrom(right1);
+		if (right2 != null) path.add(right2);
+
+		return path;
+	}
+
+	private List<Position> crossingLeftToLeft(Position entryPosition) {
+		List<Position> path = new ArrayList<>();
+		path.add(entryPosition);
+
+		Position left1 = roadMap.getPositionAtLeftFrom(entryPosition);
+		if (left1 != null) path.add(left1);
+
+		Position left2 = roadMap.getPositionAtLeftFrom(left1);
+		if (left2 != null) path.add(left2);
 
 		return path;
 	}

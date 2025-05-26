@@ -78,54 +78,33 @@ public class SimulationController {
 		vehicleControlThread = new Thread(() -> {
 			Random random = new Random();
 			while (isStarted && !Thread.currentThread().isInterrupted()) {
-				if (isInsertionStarted && activeControllers.size() < numberOfVehicles) {
 				try {
-					synchronized (activeControllers) {
-						int beforeRemove = activeControllers.size();
-						activeControllers.removeIf(controller -> !controller.isVehicleActive());
-						int afterRemove = activeControllers.size();
+					activeControllers.removeIf(controller -> !controller.isVehicleActive());
 
-						if (beforeRemove != afterRemove) {
-							System.out.println("Removed " + (beforeRemove - afterRemove) + " inactive vehicles");
-						}
+					if (isInsertionStarted && activeControllers.size() < numberOfVehicles) {
+						Position startPos = entryPoints.get(random.nextInt(entryPoints.size()));
+						int speed = 300 + random.nextInt(200);
 
-						while (activeControllers.size() < numberOfVehicles) {
-							Position startPos = entryPoints.get(random.nextInt(entryPoints.size()));
-							int speed = 300 + random.nextInt(200);
+						Vehicle vehicle = new Vehicle(generateNextId(), startPos, speed);
+						VehicleController controller = new VehicleController(
+								vehicle, roadMap, strategy, sseEmitterService);
 
-							Vehicle vehicle = new Vehicle(
-									generateNextId(),
-									startPos,
-									speed);
+						activeControllers.add(controller);
+						System.out.printf("Vehicle %d inserted at %s (Speed: %dms)%n",
+								vehicle.getId(), startPos, speed);
 
-							VehicleController controller = new VehicleController(
-									vehicle, roadMap, strategy, sseEmitterService);
-
-							activeControllers.add(controller);
-							System.out.printf("Vehicle %d inserted at %s (Speed: %dms)%n",
-									vehicle.getId(), startPos, speed);
-
-							Thread.sleep(50);
-						}
+						Thread.sleep(insertionTimeInterval);
+					} else {
+						Thread.sleep(100);
 					}
-					Thread.sleep(insertionTimeInterval);
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
-					System.out.println("Insertion thread interrupted normally");
+					System.out.println("Insertion thread interrupted");
 					break;
-				}
-			}else {
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						Thread.currentThread().interrupt();
-						break;
-					}
 				}
 			}
 			System.out.println("Vehicle control thread finished");
-		}, "VehicleControllerThread");
-
+		});
 		vehicleControlThread.start();
 	}
 
