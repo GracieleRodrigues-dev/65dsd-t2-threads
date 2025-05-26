@@ -140,4 +140,11 @@ public class RoadMap {
 		}
 	}
 
+	public boolean isExitPoint(Position position) {
+		if (position == null) {
+			return false;
+		}
+		return exitPoints.stream()
+				.anyMatch(exit -> exit.getX() == position.getX() && exit.getY() == position.getY());
+	}
 }

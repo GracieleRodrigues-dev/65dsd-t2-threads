@@ -365,6 +365,14 @@ public class VehicleController extends Thread {
 	private void moveVehicle(Position newPos) {
 		Position current = vehicle.getCurrentPosition();
 
+		if (roadMap.isExitPoint(newPos)) {
+			mutualExclusion.release(current);
+			vehicle.setActive(false);
+			System.out.println("Vehicle " + vehicle.getId() + " exited at " + newPos);
+			notifySSE(vehicle);
+			return;
+		}
+
 		System.out.println("Vehicle " + vehicle.getId() + " moving from " + current.getPositionType()+ current + " to " + newPos.getPositionType() + newPos);
 
 		mutualExclusion.release(current);
