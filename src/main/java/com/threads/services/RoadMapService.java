@@ -1,6 +1,7 @@
 package com.threads.services;
 
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
 import com.threads.models.Position;
@@ -13,6 +14,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.core.io.Resource;
+
 
 @Service
 public class RoadMapService {
@@ -24,13 +27,10 @@ public class RoadMapService {
 
     private void loadMapsFromResources() {
         try {
-            ClassPathResource[] resources = new ClassPathResource[] {
-                    new ClassPathResource("maps/m1.txt"),
-                    new ClassPathResource("maps/m2.txt"),
-                    new ClassPathResource("maps/m3.txt")
-            };
+            PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+            Resource[] resources = resolver.getResources("classpath:maps/*.txt");
 
-            for (ClassPathResource resource : resources) {
+            for (Resource resource : resources) {
                 try (InputStream inputStream = resource.getInputStream()) {
                     RoadMap roadMap = loadMapFromFile(inputStream);
                     if (roadMap != null) {
