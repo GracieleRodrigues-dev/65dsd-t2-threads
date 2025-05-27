@@ -95,8 +95,7 @@ public class VehicleController extends Thread {
 
 	private boolean isEnteringCrossing(Position nextPos) {
 		if (nextPos == null || crossingPath != null) {
-			System.out.println(nextPos + " is null, crossing path is " + crossingPath);
-		return false;
+			return false;
 		}
 		SegmentType nextType = roadMap.getSegment(nextPos.getX(), nextPos.getY());
 		return nextType.isCross();
