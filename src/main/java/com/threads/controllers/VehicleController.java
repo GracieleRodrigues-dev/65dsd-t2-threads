@@ -63,7 +63,7 @@ public class VehicleController extends Thread {
 							sleep(vehicle.getSpeed());
 						}
 
-						crossingPath.clear();
+						crossingPath = null;
 					} else {
 						System.out.println("Lá");
 						// If reservation fails, wait and retry in next iteration
@@ -94,8 +94,10 @@ public class VehicleController extends Thread {
 	}
 
 	private boolean isEnteringCrossing(Position nextPos) {
-		if (nextPos == null || crossingPath != null)
-			return false;
+		if (nextPos == null || crossingPath != null) {
+			System.out.println(nextPos + " is null, crossing path is " + crossingPath);
+		return false;
+		}
 		SegmentType nextType = roadMap.getSegment(nextPos.getX(), nextPos.getY());
 		return nextType.isCross();
 	}
@@ -228,15 +230,11 @@ public class VehicleController extends Thread {
 
 		// Randomly chooses one of the possible directions from the intersection
 		List<SegmentType> possibleDirections = getPossibleDirections(crossingType);
-		if (possibleDirections.isEmpty()) {
-			System.out.println("No valid directions for crossing type: " + crossingType);
-			return path;
-		}
 
 		// Removes the entry direction from the options (to avoid going back the way it came)
 		possibleDirections.remove(entryDirection);
 		if (possibleDirections.isEmpty()) {
-			System.out.println("Vehicle " + vehicle.getId() + " blocked at crossing - no valid exits");
+			System.out.println("No valid directions for crossing type: " + crossingType);
 			return path;
 		}
 
