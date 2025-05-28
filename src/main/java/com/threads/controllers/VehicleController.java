@@ -40,7 +40,6 @@ public class VehicleController extends Thread {
 	public void run() {
 		while (vehicle.isActive()) {
 			try {
-				while (vehicle.isActive()) {
 				// Calculate the next position based on current road/crossing
 				Position nextPosition = calculateNextPosition();
 
@@ -58,7 +57,6 @@ public class VehicleController extends Thread {
 					if (reserveFullPath(path)) {
 
 						for (Position pos : path) {
-							System.out.println("X: " + pos.toString());
 							moveVehicle(pos);
 							sleep(vehicle.getSpeed());
 						}
@@ -77,7 +75,6 @@ public class VehicleController extends Thread {
 				}
 				// Respect the vehicle's speed by sleeping
 				sleep(vehicle.getSpeed());
-				}
 			} catch (Exception e) {
 				vehicle.setActive(false);
 				System.err.println("Erro na thread do veículo: " + e.getMessage());
@@ -230,17 +227,17 @@ public class VehicleController extends Thread {
 		// Randomly chooses one of the possible directions from the intersection
 		List<SegmentType> possibleDirections = getPossibleDirections(crossingType);
 
-		// Removes the entry direction from the options (to avoid going back the way it came)
-		possibleDirections.remove(entryDirection);
 		if (possibleDirections.isEmpty()) {
 			System.out.println("No valid directions for crossing type: " + crossingType);
 			return path;
 		}
 
 		SegmentType chosenDirection = possibleDirections.get(random.nextInt(possibleDirections.size()));
-		System.out.println("Entry: " + entryDirection + ", Crossing: " + crossingType + ", Chosen: " + chosenDirection);
+		System.out.println("Entry: " + entryPosition + entryDirection + ", Crossing: " + crossingType + ",Possible directions:"+ possibleDirections +", Chosen: " + chosenDirection);
 
 		// Calculates the path based on the entry and exit directions
+		System.out.println("DEBUG - EntryDir: " + entryDirection + " (" + entryDirection.getValue() + "), " +
+				"Crossing: " + crossingType + " (" + crossingType.getValue() + ")");
 		switch (entryDirection) {
 			case ROAD_UP:
 				if (chosenDirection == SegmentType.ROAD_UP) {
@@ -288,44 +285,58 @@ public class VehicleController extends Thread {
 
 		return path;
 	}
-
 	private List<SegmentType> getPossibleDirections(SegmentType crossingType) {
 		List<SegmentType> directions = new ArrayList<>();
 
 		switch (crossingType) {
-			case CROSS_UP:
+			case CROSS_UP :
 				directions.add(SegmentType.ROAD_UP);
-				break;
-			case CROSS_RIGHT:
 				directions.add(SegmentType.ROAD_RIGHT);
-				break;
-			case CROSS_DOWN:
-				directions.add(SegmentType.ROAD_DOWN);
-				break;
-			case CROSS_LEFT:
 				directions.add(SegmentType.ROAD_LEFT);
 				break;
+
+			case CROSS_RIGHT:
+				directions.add(SegmentType.ROAD_RIGHT);
+				directions.add(SegmentType.ROAD_UP);
+				directions.add(SegmentType.ROAD_DOWN);
+				break;
+
+			case CROSS_DOWN:
+				directions.add(SegmentType.ROAD_DOWN);
+				directions.add(SegmentType.ROAD_RIGHT);
+				directions.add(SegmentType.ROAD_LEFT);
+				break;
+
+			case CROSS_LEFT:
+				directions.add(SegmentType.ROAD_LEFT);
+				directions.add(SegmentType.ROAD_UP);
+				directions.add(SegmentType.ROAD_DOWN);
+				break;
+
 			case CROSS_UP_RIGHT:
 				directions.add(SegmentType.ROAD_UP);
 				directions.add(SegmentType.ROAD_RIGHT);
 				break;
+
 			case CROSS_UP_LEFT:
 				directions.add(SegmentType.ROAD_UP);
 				directions.add(SegmentType.ROAD_LEFT);
 				break;
+
 			case CROSS_RIGHT_DOWN:
 				directions.add(SegmentType.ROAD_RIGHT);
 				directions.add(SegmentType.ROAD_DOWN);
 				break;
+
 			case CROSS_DOWN_LEFT:
 				directions.add(SegmentType.ROAD_DOWN);
 				directions.add(SegmentType.ROAD_LEFT);
 				break;
+
 			default:
 				// Não é um cruzamento válido
 				break;
 		}
-
 		return directions;
 	}
 
@@ -367,6 +378,7 @@ public class VehicleController extends Thread {
 
 		return path;
 	}
+
 
 	private boolean reserveFullPath(List<Position> path) {
 		List<Position> reservedPositions = new ArrayList<>();

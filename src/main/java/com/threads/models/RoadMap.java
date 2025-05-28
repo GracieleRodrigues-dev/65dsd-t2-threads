@@ -69,55 +69,39 @@ public class RoadMap {
 	}
 
 	public Position getPositionAtUpFrom(Position position) {
-		try {
-			int x = position.getX();
-			int y = position.getY();
-			SegmentType segment = getSegment(x - 1, y);
+		int x = position.getX() - 1;
+		int y = position.getY();
+		if (!isValidCoordinate(x, y)) return null;
 
-			return new Position(x - 1, y, segment);
-
-		} catch (ArrayIndexOutOfBoundsException ex) {
-			return null;
-		}
+		return new Position(x, y, grid[x][y]);
 	}
 
 	public Position getPositionAtDownFrom(Position position) {
-		try {
-			int x = position.getX();
-			int y = position.getY();
-			SegmentType segment = getSegment(x - 1, y);
+		int x = position.getX() + 1;
+		int y = position.getY();
+		if (!isValidCoordinate(x, y)) return null;
 
-			return new Position(x + 1, y, segment);
-
-		} catch (ArrayIndexOutOfBoundsException ex) {
-			return null;
-		}
+		return new Position(x, y, grid[x][y]);
 	}
 
 	public Position getPositionAtRightFrom(Position position) {
-		try {
-			int x = position.getX();
-			int y = position.getY();
-			SegmentType segment = getSegment(x, y + 1);
+		int x = position.getX();
+		int y = position.getY() + 1;
+		if (!isValidCoordinate(x, y)) return null;
 
-			return new Position(x, y + 1, segment);
-
-		} catch (ArrayIndexOutOfBoundsException ex) {
-			return null;
-		}
+		return new Position(x, y, grid[x][y]);
 	}
 
 	public Position getPositionAtLeftFrom(Position position) {
-		try {
-			int x = position.getX();
-			int y = position.getY();
-			SegmentType segment = getSegment(x, y - 1);
+		int x = position.getX();
+		int y = position.getY() - 1;
+		if (!isValidCoordinate(x, y)) return null;
 
-			return new Position(x, y - 1, segment);
+		return new Position(x, y, grid[x][y]);
+	}
 
-		} catch (ArrayIndexOutOfBoundsException ex) {
-			return null;
-		}
+	private boolean isValidCoordinate(int x, int y) {
+		return x >= 0 && x < rows && y >= 0 && y < cols;
 	}
 
 	public Position getNextVehiclePosition(Position currentPosition) {
@@ -126,17 +110,17 @@ public class RoadMap {
 		//System.out.println("Type: " + currentPosition.getPositionType());
 
 		switch (currentType) {
-		case ROAD_UP:
-			return getPositionAtUpFrom(currentPosition);
-		case ROAD_DOWN:
-			return getPositionAtDownFrom(currentPosition);
-		case ROAD_LEFT:
-			return getPositionAtLeftFrom(currentPosition);
-		case ROAD_RIGHT:
-			return getPositionAtRightFrom(currentPosition);
+			case ROAD_UP:
+				return getPositionAtUpFrom(currentPosition);
+			case ROAD_DOWN:
+				return getPositionAtDownFrom(currentPosition);
+			case ROAD_LEFT:
+				return getPositionAtLeftFrom(currentPosition);
+			case ROAD_RIGHT:
+				return getPositionAtRightFrom(currentPosition);
 
-		default:
-			return currentPosition;
+			default:
+				return currentPosition;
 		}
 	}
 
@@ -147,4 +131,5 @@ public class RoadMap {
 		return exitPoints.stream()
 				.anyMatch(exit -> exit.getX() == position.getX() && exit.getY() == position.getY());
 	}
+
 }
