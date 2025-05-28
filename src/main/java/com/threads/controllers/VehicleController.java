@@ -41,42 +41,42 @@ public class VehicleController extends Thread {
 		while (vehicle.isActive()) {
 			try {
 				while (vehicle.isActive()) {
-				// Calculate the next position based on current road/crossing
-				Position nextPosition = calculateNextPosition();
+					// Calculate the next position based on current road/crossing
+					Position nextPosition = calculateNextPosition();
 
-				// Special handling when entering a crossing
-				if (isEnteringCrossing(nextPosition)) {
-					// Calculate full path through the crossing
-					List<Position> path = calculateCrossingPath(nextPosition);
+					// Special handling when entering a crossing
+					if (isEnteringCrossing(nextPosition)) {
+						// Calculate full path through the crossing
+						List<Position> path = calculateCrossingPath(nextPosition);
 
-					System.out.println("Crossing path:");
-					for (Position pos : path) {
-						System.out.println(" - " + pos);
-					}
-
-					// Try to reserve all positions in the crossing path
-					if (reserveFullPath(path)) {
-
+						System.out.println("Crossing path:");
 						for (Position pos : path) {
-							System.out.println("X: " + pos.toString());
-							moveVehicle(pos);
-							sleep(vehicle.getSpeed());
+							System.out.println(" - " + pos);
 						}
 
-						crossingPath = null;
-					} else {
-						System.out.println("Lá");
-						// If reservation fails, wait and retry in next iteration
-						sleep(vehicle.getSpeed());
-						continue;
-					}
+						// Try to reserve all positions in the crossing path
+						if (reserveFullPath(path)) {
 
-				} else if (mutualExclusion.tryAcquire(nextPosition)) {
-					// If successful, move the vehicle to new position
-					moveVehicle(nextPosition);
-				}
-				// Respect the vehicle's speed by sleeping
-				sleep(vehicle.getSpeed());
+							for (Position pos : path) {
+								System.out.println("X: " + pos.toString());
+								moveVehicle(pos);
+								sleep(vehicle.getSpeed());
+							}
+
+							crossingPath = null;
+						} else {
+							System.out.println("Lá");
+							// If reservation fails, wait and retry in next iteration
+							sleep(vehicle.getSpeed());
+							continue;
+						}
+
+					} else if (mutualExclusion.tryAcquire(nextPosition)) {
+						// If successful, move the vehicle to new position
+						moveVehicle(nextPosition);
+					}
+					// Respect the vehicle's speed by sleeping
+					sleep(vehicle.getSpeed());
 				}
 			} catch (Exception e) {
 				vehicle.setActive(false);
@@ -166,7 +166,6 @@ public class VehicleController extends Thread {
 		return path;
 	}
 
-
 	private List<Position> crossingRightToDown(Position entryPosition) {
 		List<Position> path = new ArrayList<>();
 		path.add(entryPosition);
@@ -176,7 +175,6 @@ public class VehicleController extends Thread {
 
 		return path;
 	}
-
 
 	private List<Position> crossingRightToUp(Position entryPosition) {
 		List<Position> path = new ArrayList<>();
@@ -230,7 +228,8 @@ public class VehicleController extends Thread {
 		// Randomly chooses one of the possible directions from the intersection
 		List<SegmentType> possibleDirections = getPossibleDirections(crossingType);
 
-		// Removes the entry direction from the options (to avoid going back the way it came)
+		// Removes the entry direction from the options (to avoid going back the way it
+		// came)
 		possibleDirections.remove(entryDirection);
 		if (possibleDirections.isEmpty()) {
 			System.out.println("No valid directions for crossing type: " + crossingType);
@@ -242,48 +241,48 @@ public class VehicleController extends Thread {
 
 		// Calculates the path based on the entry and exit directions
 		switch (entryDirection) {
-			case ROAD_UP:
-				if (chosenDirection == SegmentType.ROAD_UP) {
-					path = crossingUpToUp(entryPosition);
-				} else if (chosenDirection == SegmentType.ROAD_RIGHT) {
-					path = crossingUpToRight(entryPosition);
-				} else if (chosenDirection == SegmentType.ROAD_LEFT) {
-					path = crossingUpToLeft(entryPosition);
-				}
-				break;
+		case ROAD_UP:
+			if (chosenDirection == SegmentType.ROAD_UP) {
+				path = crossingUpToUp(entryPosition);
+			} else if (chosenDirection == SegmentType.ROAD_RIGHT) {
+				path = crossingUpToRight(entryPosition);
+			} else if (chosenDirection == SegmentType.ROAD_LEFT) {
+				path = crossingUpToLeft(entryPosition);
+			}
+			break;
 
-			case ROAD_DOWN:
-				if (chosenDirection == SegmentType.ROAD_DOWN) {
-					path = crossingDownToDown(entryPosition);
-				} else if (chosenDirection == SegmentType.ROAD_LEFT) {
-					path = crossingDownToLeft(entryPosition);
-				} else if (chosenDirection == SegmentType.ROAD_RIGHT) {
-					path = crossingDownToRight(entryPosition);
-				}
-				break;
+		case ROAD_DOWN:
+			if (chosenDirection == SegmentType.ROAD_DOWN) {
+				path = crossingDownToDown(entryPosition);
+			} else if (chosenDirection == SegmentType.ROAD_LEFT) {
+				path = crossingDownToLeft(entryPosition);
+			} else if (chosenDirection == SegmentType.ROAD_RIGHT) {
+				path = crossingDownToRight(entryPosition);
+			}
+			break;
 
-			case ROAD_RIGHT:
-				if (chosenDirection == SegmentType.ROAD_RIGHT) {
-					path = crossingRightToRight(entryPosition);
-				} else if (chosenDirection == SegmentType.ROAD_DOWN) {
-					path = crossingRightToDown(entryPosition);
-				} else if (chosenDirection == SegmentType.ROAD_UP) {
-					path = crossingRightToUp(entryPosition);
-				}
-				break;
+		case ROAD_RIGHT:
+			if (chosenDirection == SegmentType.ROAD_RIGHT) {
+				path = crossingRightToRight(entryPosition);
+			} else if (chosenDirection == SegmentType.ROAD_DOWN) {
+				path = crossingRightToDown(entryPosition);
+			} else if (chosenDirection == SegmentType.ROAD_UP) {
+				path = crossingRightToUp(entryPosition);
+			}
+			break;
 
-			case ROAD_LEFT:
-				if (chosenDirection == SegmentType.ROAD_LEFT) {
-					path = crossingLeftToLeft(entryPosition);
-				} else if (chosenDirection == SegmentType.ROAD_UP) {
-					path = crossingLeftToUp(entryPosition);
-				} else if (chosenDirection == SegmentType.ROAD_DOWN) {
-					path = crossingLeftToDown(entryPosition);
-				}
-				break;
+		case ROAD_LEFT:
+			if (chosenDirection == SegmentType.ROAD_LEFT) {
+				path = crossingLeftToLeft(entryPosition);
+			} else if (chosenDirection == SegmentType.ROAD_UP) {
+				path = crossingLeftToUp(entryPosition);
+			} else if (chosenDirection == SegmentType.ROAD_DOWN) {
+				path = crossingLeftToDown(entryPosition);
+			}
+			break;
 
-			default:
-				System.out.println("Unknown entry direction: " + entryDirection);
+		default:
+			System.out.println("Unknown entry direction: " + entryDirection);
 		}
 
 		return path;
@@ -293,37 +292,37 @@ public class VehicleController extends Thread {
 		List<SegmentType> directions = new ArrayList<>();
 
 		switch (crossingType) {
-			case CROSS_UP:
-				directions.add(SegmentType.ROAD_UP);
-				break;
-			case CROSS_RIGHT:
-				directions.add(SegmentType.ROAD_RIGHT);
-				break;
-			case CROSS_DOWN:
-				directions.add(SegmentType.ROAD_DOWN);
-				break;
-			case CROSS_LEFT:
-				directions.add(SegmentType.ROAD_LEFT);
-				break;
-			case CROSS_UP_RIGHT:
-				directions.add(SegmentType.ROAD_UP);
-				directions.add(SegmentType.ROAD_RIGHT);
-				break;
-			case CROSS_UP_LEFT:
-				directions.add(SegmentType.ROAD_UP);
-				directions.add(SegmentType.ROAD_LEFT);
-				break;
-			case CROSS_RIGHT_DOWN:
-				directions.add(SegmentType.ROAD_RIGHT);
-				directions.add(SegmentType.ROAD_DOWN);
-				break;
-			case CROSS_DOWN_LEFT:
-				directions.add(SegmentType.ROAD_DOWN);
-				directions.add(SegmentType.ROAD_LEFT);
-				break;
-			default:
-				// Não é um cruzamento válido
-				break;
+		case CROSS_UP:
+			directions.add(SegmentType.ROAD_UP);
+			break;
+		case CROSS_RIGHT:
+			directions.add(SegmentType.ROAD_RIGHT);
+			break;
+		case CROSS_DOWN:
+			directions.add(SegmentType.ROAD_DOWN);
+			break;
+		case CROSS_LEFT:
+			directions.add(SegmentType.ROAD_LEFT);
+			break;
+		case CROSS_UP_RIGHT:
+			directions.add(SegmentType.ROAD_UP);
+			directions.add(SegmentType.ROAD_RIGHT);
+			break;
+		case CROSS_UP_LEFT:
+			directions.add(SegmentType.ROAD_UP);
+			directions.add(SegmentType.ROAD_LEFT);
+			break;
+		case CROSS_RIGHT_DOWN:
+			directions.add(SegmentType.ROAD_RIGHT);
+			directions.add(SegmentType.ROAD_DOWN);
+			break;
+		case CROSS_DOWN_LEFT:
+			directions.add(SegmentType.ROAD_DOWN);
+			directions.add(SegmentType.ROAD_LEFT);
+			break;
+		default:
+			// Não é um cruzamento válido
+			break;
 		}
 
 		return directions;
@@ -334,10 +333,12 @@ public class VehicleController extends Thread {
 		path.add(entryPosition);
 
 		Position down1 = roadMap.getPositionAtDownFrom(entryPosition);
-		if (down1 != null) path.add(down1);
+		if (down1 != null)
+			path.add(down1);
 
 		Position down2 = roadMap.getPositionAtDownFrom(down1);
-		if (down2 != null) path.add(down2);
+		if (down2 != null)
+			path.add(down2);
 
 		return path;
 	}
@@ -347,10 +348,12 @@ public class VehicleController extends Thread {
 		path.add(entryPosition);
 
 		Position right1 = roadMap.getPositionAtRightFrom(entryPosition);
-		if (right1 != null) path.add(right1);
+		if (right1 != null)
+			path.add(right1);
 
 		Position right2 = roadMap.getPositionAtRightFrom(right1);
-		if (right2 != null) path.add(right2);
+		if (right2 != null)
+			path.add(right2);
 
 		return path;
 	}
@@ -360,10 +363,12 @@ public class VehicleController extends Thread {
 		path.add(entryPosition);
 
 		Position left1 = roadMap.getPositionAtLeftFrom(entryPosition);
-		if (left1 != null) path.add(left1);
+		if (left1 != null)
+			path.add(left1);
 
 		Position left2 = roadMap.getPositionAtLeftFrom(left1);
-		if (left2 != null) path.add(left2);
+		if (left2 != null)
+			path.add(left2);
 
 		return path;
 	}
@@ -394,14 +399,15 @@ public class VehicleController extends Thread {
 			return;
 		}
 
-		System.out.println("Vehicle " + vehicle.getId() + " moving from " + current.getPositionType()+ current + " to " + newPos.getPositionType() + newPos);
+		System.out.println("Vehicle " + vehicle.getId() + " moving from " + current.getPositionType() + current + " to "
+				+ newPos.getPositionType() + newPos);
 
 		mutualExclusion.release(current);
 		vehicle.setCurrentPosition(newPos);
 		notifySSE(vehicle);
 	}
 
-	public boolean isVehicleActive(){
+	public boolean isVehicleActive() {
 		return vehicle.isActive();
 	}
 

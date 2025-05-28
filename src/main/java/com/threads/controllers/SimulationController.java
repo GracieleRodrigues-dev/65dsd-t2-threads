@@ -3,6 +3,7 @@ package com.threads.controllers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 import com.threads.strategy.MonitorStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +85,7 @@ public class SimulationController {
 					if (isInsertionStarted && activeControllers.size() < numberOfVehicles) {
 						Position startPos = entryPoints.get(random.nextInt(entryPoints.size()));
 						int speed = 300 + random.nextInt(200);
-
+						
 						Vehicle vehicle = new Vehicle(generateNextId(), startPos, speed);
 						VehicleController controller = new VehicleController(
 								vehicle, roadMap, strategy, sseEmitterService);
@@ -109,11 +110,9 @@ public class SimulationController {
 	}
 
 	private int generateNextId() {
-		return activeControllers.stream()
-				.mapToInt(c -> c.getVehicle().getId())
-				.max()
-				.orElse(0) + 1;
+		return UUID.randomUUID().toString().hashCode();
 	}
+	
 	public void stopSimulation() {
 		this.roadMapIndex = 0;
 		this.numberOfVehicles = 0;
