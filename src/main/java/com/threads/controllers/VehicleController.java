@@ -79,10 +79,10 @@ public class VehicleController extends Thread {
 				vehicle.setActive(false);
 				System.err.println("Erro na thread do veículo: " + e.getMessage());
 				e.printStackTrace();
-			}/* finally {
+			} finally {
 				mutualExclusion.release(vehicle.getCurrentPosition());
 				System.out.println("Vehicle " + vehicle.getId() + " finalized");
-			}*/
+			}
 		}
 	}
 
@@ -398,11 +398,11 @@ public class VehicleController extends Thread {
 		Position current = vehicle.getCurrentPosition();
 
 		if (roadMap.isExitPoint(newPos)) {
+			mutualExclusion.release(current);
 			vehicle.setActive(false);
 			vehicle.setCurrentPosition(newPos);
 			System.out.println("Vehicle " + vehicle.getId() + " exited at " + newPos);
 			notifySSE(vehicle);
-			mutualExclusion.release(current);
 			return;
 		}
 
