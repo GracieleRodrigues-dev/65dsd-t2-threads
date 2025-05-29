@@ -79,10 +79,10 @@ public class VehicleController extends Thread {
 				vehicle.setActive(false);
 				System.err.println("Erro na thread do veículo: " + e.getMessage());
 				e.printStackTrace();
-			} finally {
+			}/* finally {
 				mutualExclusion.release(vehicle.getCurrentPosition());
 				System.out.println("Vehicle " + vehicle.getId() + " finalized");
-			}
+			}*/
 		}
 	}
 
@@ -408,9 +408,9 @@ public class VehicleController extends Thread {
 
 		System.out.println("Vehicle " + vehicle.getId() + " moving from " + current.getPositionType()+ current + " to " + newPos.getPositionType() + newPos);
 
-		mutualExclusion.release(current);
 		vehicle.setCurrentPosition(newPos);
 		notifySSE(vehicle);
+		mutualExclusion.release(current);
 	}
 
 	public boolean isVehicleActive(){
