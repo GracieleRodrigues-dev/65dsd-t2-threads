@@ -8,7 +8,7 @@ Project developed for the Distributed Systems course (65DSD) that implements a t
 # Setup
 
 * Backend: Java Spring Boot server handling simulation logic
-* Frontend: React application for visualization - [65dsd-t2-threads-client]([https://link-url-here.org](https://github.com/GracieleRodrigues-dev/65dsd-t2-threads-client)
+* Frontend: React application for visualization - [65dsd-t2-threads-client](https://github.com/GracieleRodrigues-dev/65dsd-t2-threads-client)
 
 ## Backend Setup ⚙️
 1. Clone the repository;
